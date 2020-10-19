@@ -22,17 +22,39 @@ public class HelloSender {
 
 //    @Scheduled(fixedRate = 2000)
     public void sendMessage() {
-        System.out.println("--- Отправляю сообщение! ");
+//        System.out.println("--- Отправляю сообщение! ");
+//
+//        HelloWorldMessage message = HelloWorldMessage.builder()
+//                .id(UUID.randomUUID())
+//                .message("!!! Вам срочное сообщение !!!")
+//                .build();
+//
+//        jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
+//
+//        System.out.println("--- Cообщение отправлено! ");
+//        System.out.println(" ");
+    }
+
+    @Scheduled(fixedRate = 2000)
+    public void sendAndResiveMessage() throws JMSException {
 
         HelloWorldMessage message = HelloWorldMessage.builder()
                 .id(UUID.randomUUID())
-                .message("!!! Вам срочное сообщение !!!")
+                .message("!!! Hello ")
                 .build();
 
-        jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
+        Message receviedMsg = jmsTemplate.sendAndReceive(JmsConfig.MY_SEND_RSV_QUEUE, session -> {
+            try {
+                Message helloMessage = session.createTextMessage(objectMapper.writeValueAsString(message));
+                helloMessage.setStringProperty("_type","gov.kui.kuijms.model.HelloWorldMessage");
+                System.out.println("--- Отправка Hello ---");
+                return  helloMessage;
+            } catch (JsonProcessingException e) {
+                throw new JMSException("boom");
+            }
+        });
 
-        System.out.println("--- Cообщение отправлено! ");
-        System.out.println(" ");
+        System.out.println(receviedMsg.getBody(String.class)+"\n");
     }
 
     @Scheduled(fixedRate = 2000)
