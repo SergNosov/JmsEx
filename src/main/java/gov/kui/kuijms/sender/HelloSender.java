@@ -21,7 +21,7 @@ public class HelloSender {
 
         HelloWorldMessage message = HelloWorldMessage.builder()
                 .id(UUID.randomUUID())
-                .message("   --- Вам срочное сообщение!!!")
+                .message("!!! Вам срочное сообщение !!!")
                 .build();
 
         jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
