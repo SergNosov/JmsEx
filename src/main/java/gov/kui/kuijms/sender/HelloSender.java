@@ -22,17 +22,17 @@ public class HelloSender {
 
 //    @Scheduled(fixedRate = 2000)
     public void sendMessage() {
-//        System.out.println("--- Отправляю сообщение! ");
-//
-//        HelloWorldMessage message = HelloWorldMessage.builder()
-//                .id(UUID.randomUUID())
-//                .message("!!! Вам срочное сообщение !!!")
-//                .build();
-//
-//        jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
-//
-//        System.out.println("--- Cообщение отправлено! ");
-//        System.out.println(" ");
+        System.out.println("--- Отправляю сообщение! ");
+
+        HelloWorldMessage message = HelloWorldMessage.builder()
+                .id(UUID.randomUUID())
+                .message("!!! Вам срочное сообщение !!!")
+                .build();
+
+        jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
+
+        System.out.println("--- Cообщение отправлено! ");
+        System.out.println(" ");
     }
 
     @Scheduled(fixedRate = 2000)
