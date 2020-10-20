@@ -20,7 +20,7 @@ public class HelloSender {
     private final JmsTemplate jmsTemplate;
     private final ObjectMapper objectMapper;
 
-//    @Scheduled(fixedRate = 2000)
+//   @Scheduled(fixedRate = 2000)
     public void sendMessage() {
         System.out.println("--- Отправляю сообщение! ");
 
@@ -46,14 +46,14 @@ public class HelloSender {
         Message receviedMsg = jmsTemplate.sendAndReceive(JmsConfig.MY_SEND_RSV_QUEUE, session -> {
             try {
                 Message helloMessage = session.createTextMessage(objectMapper.writeValueAsString(message));
-                helloMessage.setStringProperty("_type","gov.kui.kuijms.model.HelloWorldMessage");
-                System.out.println("--- Отправка Hello ---");
-                return  helloMessage;
+                helloMessage.setStringProperty("_type", "gov.kui.kuijms.model.HelloWorldMessage");
+                System.out.println("--- Отправка пароля ---");
+                return helloMessage;
             } catch (JsonProcessingException e) {
-                throw new JMSException("boom");
+                throw new JMSException("boom "+e.getMessage());
             }
         });
 
-        System.out.println(receviedMsg.getBody(String.class)+"\n");
+        System.out.println("Получен отзыв: "+receviedMsg.getBody(String.class)+"\n");
     }
 }
