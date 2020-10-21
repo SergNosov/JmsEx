@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.kui.kuijms.config.JmsConfig;
 import gov.kui.kuijms.model.HelloWorldMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +16,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class HelloSender {
@@ -20,40 +24,43 @@ public class HelloSender {
     private final JmsTemplate jmsTemplate;
     private final ObjectMapper objectMapper;
 
-//   @Scheduled(fixedRate = 2000)
-    public void sendMessage() {
-        System.out.println("--- Отправляю сообщение! ");
+    @Value("${jmsconfig.myqueue}")
+    private String myQueue;
 
+    @Value("${jmsconfig.my_send_rsv_queue}")
+    private String mySendRsvQueue;
+
+
+    @Scheduled(fixedRate = 2000)
+    public void sendMessage() {
         HelloWorldMessage message = HelloWorldMessage.builder()
                 .id(UUID.randomUUID())
-                .message("!!! Вам срочное сообщение !!!")
+                .message("Вам срочное сообщение !!!")
                 .build();
 
-        jmsTemplate.convertAndSend(JmsConfig.MY_QUEUE, message);
+        jmsTemplate.convertAndSend(myQueue, message);
 
-        System.out.println("--- Cообщение отправлено! ");
-        System.out.println(" ");
+        log.info("--- Cообщение отправлено!");
     }
 
     @Scheduled(fixedRate = 2000)
     public void sendAndResiveMessage() throws JMSException {
-
         HelloWorldMessage message = HelloWorldMessage.builder()
                 .id(UUID.randomUUID())
                 .message("!!! Hello ")
                 .build();
 
-        Message receviedMsg = jmsTemplate.sendAndReceive(JmsConfig.MY_SEND_RSV_QUEUE, session -> {
+        Message receviedMsg = jmsTemplate.sendAndReceive(mySendRsvQueue, session -> {
             try {
                 Message helloMessage = session.createTextMessage(objectMapper.writeValueAsString(message));
                 helloMessage.setStringProperty("_type", "gov.kui.kuijms.model.HelloWorldMessage");
-                System.out.println("--- Отправка пароля ---");
+
+                log.info("--- Отправка пароля ---");
                 return helloMessage;
             } catch (JsonProcessingException e) {
                 throw new JMSException("boom "+e.getMessage());
             }
         });
-
-        System.out.println("Получен отзыв: "+receviedMsg.getBody(String.class)+"\n");
+        log.info("Получен отзыв: "+receviedMsg.getBody(String.class)+"\n");
     }
 }

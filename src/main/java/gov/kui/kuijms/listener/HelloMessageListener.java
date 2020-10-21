@@ -3,7 +3,9 @@ package gov.kui.kuijms.listener;
 import gov.kui.kuijms.config.JmsConfig;
 import gov.kui.kuijms.model.HelloWorldMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.MessageHeaders;
@@ -15,33 +17,33 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class HelloMessageListener {
 
     private final JmsTemplate jmsTemplate;
 
-    @JmsListener(destination = JmsConfig.MY_QUEUE)
+    @JmsListener(destination = "${jmsconfig.myqueue}")
     public void listen(@Payload HelloWorldMessage helloWorldMessage,
                        @Headers MessageHeaders messageHeaders,
                        Message message){
-        System.out.println("   --- Сообщение получено!!!");
-        System.out.println(helloWorldMessage+"\n");
+        log.info("--- Сообщение получено: "+helloWorldMessage+"\n");
     }
 
-    @JmsListener(destination = JmsConfig.MY_SEND_RSV_QUEUE)
+    @JmsListener(destination = "${jmsconfig.my_send_rsv_queue}")
     public void listenForHello(@Payload HelloWorldMessage helloWorldMessage,
                        @Headers MessageHeaders messageHeaders,
                        Message message) throws JMSException {
 
-        System.out.println("Получен пароль: "+ helloWorldMessage.getMessage());
+        log.info("Получен пароль: "+ helloWorldMessage.getMessage());
 
         HelloWorldMessage payloadMsg = HelloWorldMessage.builder()
                 .id(UUID.randomUUID())
                 .message("World !!!")
                 .build();
 
-        System.out.println("--- Отправка отзыв ---");
+        log.info("--- Отправка отзыв ---");
         jmsTemplate.convertAndSend(message.getJMSReplyTo(),payloadMsg);
     }
 }
