@@ -1,11 +1,8 @@
 package gov.kui.kuijms.listener;
 
-import gov.kui.kuijms.config.JmsConfig;
 import gov.kui.kuijms.model.HelloWorldMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.activemq.artemis.api.core.JsonUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.MessageHeaders;
